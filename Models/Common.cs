@@ -56,7 +56,7 @@ namespace TimeShareProject.Models
             return distinctReservation;
         }
 
-        public static double Calculate(double? unitprice, int num, int blockId)
+        public static double Calculate(double? unitprice, int num, string blockId)
         {
             using _4restContext context = new();
             var block = context.Blocks
@@ -64,7 +64,7 @@ namespace TimeShareProject.Models
             return (double)(unitprice * num * block.Proportion / 100);
         }
 
-        public static int CountReservations(int propertyId, int blockId)
+        public static int CountReservations(string propertyId, string blockId)
         {
             using _4restContext context = new();
             int reservationCount = context.Reservations.Count(r => r.PropertyId == propertyId && r.BlockId == blockId && r.Status == 3);
@@ -72,13 +72,13 @@ namespace TimeShareProject.Models
         }
 
 
-        public static Reservation GetPropertyFromReservation(int id)
+        public static Reservation GetPropertyFromReservation(string id)
         {
             using _4restContext context = new();
             var reservation = context.Reservations.Include(p => p.Block).Include(p => p.User).Include(p => p.Property).FirstOrDefault(p => p.Id == id);
             return reservation;
         }
-        public static List<Block> GetAvailableBlocks(int userId, int propertyId)
+        public static List<Block> GetAvailableBlocks(string userId, string propertyId)
         {
             using (_4restContext context = new _4restContext())
             {
@@ -220,14 +220,14 @@ namespace TimeShareProject.Models
             return projects;
         }
 
-        public static string? GetPropertyName(int? Id)
+        public static string? GetPropertyName(string? Id)
         {
             using _4restContext context = new();
             var propertyName = context.Properties.FirstOrDefault(p => p.Id == Id).Name;
             return propertyName;
         }
 
-        public static string? GetTransactionCode(int? id)
+        public static string? GetTransactionCode(string? id)
         {
             if (id == null)
             {
@@ -243,7 +243,6 @@ namespace TimeShareProject.Models
                         .ThenInclude(r => r.Property)
                     .Include(t => t.Reservation)
                         .ThenInclude(r => r.User)
-                            .ThenInclude(u => u.Account)
                     .FirstOrDefault(t => t.Id == id);
 
                 if (transaction == null || transaction.Reservation == null)
@@ -252,11 +251,11 @@ namespace TimeShareProject.Models
                 }
 
                 var user = transaction.Reservation.User;
-                var userName = user?.Account?.Username ?? "UnknownUser";
+                var userName = user?.UserName ?? "UnknownUser";
                 var propertyName = transaction.Reservation.Property?.Name ?? "UnknownProperty";
-                var blockId = transaction.Reservation.Block?.Id ?? 0;
+                string blockId = transaction.Reservation.Block.Id ?? "";
 
-                int propertyID = (int)transaction.Reservation.PropertyId;
+                string propertyID = transaction.Reservation.PropertyId;
 
                 var type = "";
                 switch (transaction.Type)
@@ -289,15 +288,15 @@ namespace TimeShareProject.Models
                 return $"{userName}_{propertyName}_{blockId}_{type}";
             }
         }
-        public static int GetReservationId(int transactionId)
+        public static string GetReservationId(string transactionId)
         {
             using _4restContext context = new();
             var transaction = context.Transactions
-                                       .FirstOrDefault(t => t.Id == transactionId);
+                                       .FirstOrDefault(t => t.Id.ToString() == transactionId);
 
             return transaction.ReservationId;
         }
-        public static bool? GetTransactionStatus(int transactionId)
+        public static bool? GetTransactionStatus(string transactionId)
         {
             using _4restContext context = new();
             var transaction = context.Transactions
@@ -305,7 +304,7 @@ namespace TimeShareProject.Models
 
             return transaction?.Status;
         }
-        public static int? GetReservationStatus(int reservationId)
+        public static int? GetReservationStatus(string reservationId)
         {
             using _4restContext context = new();
             var reservation = context.Reservations
@@ -313,7 +312,7 @@ namespace TimeShareProject.Models
 
             return reservation.Status;
         }
-        public static DateTime? GetTransactionDeadline(int transactionId)
+        public static DateTime? GetTransactionDeadline(string transactionId)
         {
             using _4restContext context = new();
             var transaction = context.Transactions
@@ -321,7 +320,7 @@ namespace TimeShareProject.Models
 
             return transaction?.DeadlineDate;
         }
-        public static int? GetReservationStatusByTransactionID(int transactionId)
+        public static int? GetReservationStatusByTransactionID(string transactionId)
         {
             using (_4restContext context = new _4restContext())
             {
@@ -350,7 +349,7 @@ namespace TimeShareProject.Models
             }
             return false;
         }
-        public static void CreateFirstTermPayment(int userID, int reservationID, int propertyID)
+        public static void CreateFirstTermPayment(string userID, string reservationID, string propertyID)
         {
             using _4restContext _context = new _4restContext();
             var propertyId = propertyID;

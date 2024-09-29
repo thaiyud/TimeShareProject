@@ -21,12 +21,12 @@ namespace TimeShareProject.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            var timeShareProjectContext = _context.Users.Include(u => u.Account);
+            var timeShareProjectContext = _context.Users;
             return View(await timeShareProjectContext.ToListAsync());
         }
 
         // GET: Users/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string? id)
         {
             if (id == null)
             {
@@ -34,8 +34,7 @@ namespace TimeShareProject.Controllers
             }
 
             var user = await _context.Users
-                .Include(u => u.Account)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id.ToString() == id);
             if (user == null)
             {
                 return NotFound();
@@ -47,7 +46,7 @@ namespace TimeShareProject.Controllers
         // GET: Users/Create
         public IActionResult Create()
         {
-            ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Id");
+            ViewData["AccountId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 

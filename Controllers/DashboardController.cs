@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System;
+using TimeShareProject.ViewModels;
 
 
 
@@ -20,9 +21,9 @@ namespace TimeShareProject.Controllers
             _dbContext = dbContext;
         }
         [HttpGet]
-        private DashboardInfo GetDashboardData()
+        private DashboardInfoVM GetDashboardData()
         {
-            DashboardInfo dashboardInfo = new DashboardInfo();
+            DashboardInfoVM dashboardInfo = new DashboardInfoVM();
             List<Transaction> transactions = new List<Transaction>();
             List<int> revenue = new List<int>(12) { };
             List<String> months = new List<String>();

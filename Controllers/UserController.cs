@@ -122,14 +122,14 @@ namespace TimeShareProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditAccount(EditAccountViewModel model)
+        public async Task<IActionResult> EditAccount(EditAccountVM model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Username == model.CurrentUsername && a.Password == model.CurrentPassword);
+            var account = await _dbContext.ApplicationUsers.FirstOrDefaultAsync(a => a.UserName == model.CurrentUsername && a.PasswordHash == model.CurrentPassword);
             if (account == null)
             {
                 TempData["errorCorrectUsername"] = "Invalid current username or password!";
@@ -137,18 +137,16 @@ namespace TimeShareProject.Controllers
             }
 
             // Update username and password
-            account.Username = model.NewUsername;
-            account.Password = model.NewPassword;
+            account.UserName = model.NewUsername;
+            account.PasswordHash = model.NewPassword;
             _dbContext.Update(account);
             await _dbContext.SaveChangesAsync();
-
-
             return RedirectToAction(nameof(UserProfile));
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
-            return _dbContext.Users.Any(e => e.Id == id);
+            return _dbContext.Users.Any(e => e.Id.ToString() == id);
         }
         public IActionResult EditIdentityCard()
         {
@@ -177,7 +175,7 @@ namespace TimeShareProject.Controllers
             return RedirectToAction(nameof(UserProfile));
         }
 
-        public async Task<string> SaveUserImage(User user, IFormFile imageFile)
+        public async Task<string> SaveUserImage(ApplicationUser user, IFormFile imageFile)
         {
             if (user == null || imageFile == null || imageFile.Length == 0)
             {
@@ -199,7 +197,7 @@ namespace TimeShareProject.Controllers
             }
             return User.Identity.Name + "/" + fileName;
         }
-        public ActionResult GetUserTransactions(int Id)
+        public ActionResult GetUserTransactions(string Id)
         {
 
             string username = User.Identity.Name;
@@ -207,7 +205,7 @@ namespace TimeShareProject.Controllers
             var user = _dbContext.Users
                                  .Include(u => u.Reservations)
                                  .ThenInclude(r => r.Transactions)
-                                 .FirstOrDefault(u => u.Account.Username == username);
+                                 .FirstOrDefault(u => u.UserName == username);
 
             if (user == null)
             {
@@ -235,8 +233,8 @@ namespace TimeShareProject.Controllers
             var user = _dbContext.Users
                                  .Include(u => u.Reservations)
                                  .ThenInclude(r => r.Transactions)
-                                 .FirstOrDefault(u => u.Account.Username == username);
-            int userId = user.Id;
+                                 .FirstOrDefault(u => u.UserName == username);
+            string userId = user.Id.ToString();
 
             var userReservations = _dbContext.Reservations.Include(r => r.Property)
                 .Where(r => r.UserId == userId)

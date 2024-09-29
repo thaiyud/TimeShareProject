@@ -3,17 +3,15 @@ using System.Collections.Generic;
 
 namespace TimeShareProject.Models;
 
-public partial class Contact
+public partial class Contact : BaseEntity
 {
-    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
 
-    public string Name { get; set; } = null!;
+    public string Email { get; set; } = string.Empty;
 
-    public string Email { get; set; } = null!;
-
-    public string Message { get; set; } = null!;
+    public string Message { get; set; } = string.Empty;
 
     public bool Status { get; set; }
 
-    public string Phone { get; set; } = null!;
+    public string Phone { get; set; } = string.Empty;
 }
