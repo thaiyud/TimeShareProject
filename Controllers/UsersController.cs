@@ -55,7 +55,7 @@ namespace TimeShareProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Sex,DateOfBirth,PhoneNumber,Email,Address,IdfrontImage,IdbackImage,AccountId,Status,BankAccountNumber,BankAccountHolder,BankName")] User user)
+        public async Task<IActionResult> Create([Bind("Id,Name,Sex,DateOfBirth,PhoneNumber,Email,Address,IdfrontImage,IdbackImage,AccountId,Status,BankAccountNumber,BankAccountHolder,BankName")] ApplicationUser user)
         {
             if (ModelState.IsValid)
             {
@@ -63,7 +63,7 @@ namespace TimeShareProject.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Id", user.AccountId);
+            ViewData["AccountId"] = new SelectList(_context.Users, "Id", "Id", user.Id);
             return View(user);
         }
 
@@ -80,7 +80,7 @@ namespace TimeShareProject.Controllers
             {
                 return NotFound();
             }
-            ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Id", user.AccountId);
+            ViewData["AccountId"] = new SelectList(_context.Users, "Id", "Id", user.Id);
             return View(user);
         }
 
@@ -89,9 +89,9 @@ namespace TimeShareProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Sex,DateOfBirth,PhoneNumber,Email,Address,IdfrontImage,IdbackImage,AccountId,Status,BankAccountNumber,BankAccountHolder,BankName")] User user)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Name,Sex,DateOfBirth,PhoneNumber,Email,Address,IdfrontImage,IdbackImage,AccountId,Status,BankAccountNumber,BankAccountHolder,BankName")] ApplicationUser user)
         {
-            if (id != user.Id)
+            if (id != user.Id.ToString())
             {
                 return NotFound();
             }
@@ -105,7 +105,7 @@ namespace TimeShareProject.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.Id))
+                    if (!UserExists(user.Id.ToString()))
                     {
                         return NotFound();
                     }
@@ -116,12 +116,12 @@ namespace TimeShareProject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Id", user.AccountId);
+            ViewData["AccountId"] = new SelectList(_context.Users, "Id", "Id", user.Id);
             return View(user);
         }
 
         // GET: Users/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string? id)
         {
             if (id == null)
             {
@@ -129,8 +129,7 @@ namespace TimeShareProject.Controllers
             }
 
             var user = await _context.Users
-                .Include(u => u.Account)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id.ToString() == id);
             if (user == null)
             {
                 return NotFound();
@@ -154,9 +153,9 @@ namespace TimeShareProject.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.Id.ToString() == id);
         }
     }
 }

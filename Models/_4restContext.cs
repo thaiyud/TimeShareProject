@@ -24,13 +24,13 @@ public partial class _4restContext : IdentityDbContext<ApplicationUser, Applicat
     public virtual DbSet<Rate> Rates { get; set; }
     public virtual DbSet<Reservation> Reservations { get; set; }
     public virtual DbSet<Transaction> Transactions { get; set; }
-    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
-    public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
-    public virtual DbSet<ApplicationUserRoles> ApplicationUserRoles { get; set; }
-    public virtual DbSet<ApplicationUserLogins> ApplicationUserLogin { get; set; }
-    public virtual DbSet<ApplicationUserTokens> ApplicationUserToken { get; set; }
-    public virtual DbSet<ApplicationUserClaims> ApplicationUserClaim { get; set; }
-    public virtual DbSet<ApplicationRoleClaims> ApplicationRoleClaim { get; set; }
+    //public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    //public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+    //public virtual DbSet<ApplicationUserRoles> ApplicationUserRoles { get; set; }
+    //public virtual DbSet<ApplicationUserLogins> ApplicationUserLogin { get; set; }
+    //public virtual DbSet<ApplicationUserTokens> ApplicationUserToken { get; set; }
+    //public virtual DbSet<ApplicationUserClaims> ApplicationUserClaim { get; set; }
+    //public virtual DbSet<ApplicationRoleClaims> ApplicationRoleClaim { get; set; }
     private string? GetConnectionString()
     {
         IConfiguration configuration = new ConfigurationBuilder()

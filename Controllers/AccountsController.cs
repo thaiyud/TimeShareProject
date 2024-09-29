@@ -21,19 +21,19 @@ namespace TimeShareProject.Controllers
         // GET: Accounts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Accounts.ToListAsync());
+            return View(await _context.Users.ToListAsync());
         }
 
         // GET: Accounts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var account = await _context.Accounts
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var account = await _context.Users
+                .FirstOrDefaultAsync(m => m.Id.ToString() == id);
             if (account == null)
             {
                 return NotFound();
@@ -53,22 +53,22 @@ namespace TimeShareProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Account account, string NewUsername, string NewPassword)
+        public async Task<IActionResult> Create(ApplicationUser account, string newUsername, string newPassword)
         {
             if (ModelState.IsValid)
             {
-                var existedUsername = _context.Accounts.Where(u => u.Username == NewUsername);
+                var existedUsername = _context.Users.Where(u => u.UserName == newUsername);
                 if (existedUsername.Any())
                 {
                     TempData["errorExistUsername"] = "Username already exists!";
                     return RedirectToAction("Create");
 
                 }
-                var newAccount = new Account
+                var newAccount = new ApplicationUser
                 {
-                    Username = NewUsername,
-                    Password = NewPassword,
-                    Role = account.Role
+                    UserName = newUsername,
+                    PasswordHash = newPassword,
+                    //Role = account.Role
                 };
                 _context.Add(newAccount);
                 await _context.SaveChangesAsync();
@@ -85,7 +85,7 @@ namespace TimeShareProject.Controllers
                 return NotFound();
             }
 
-            var account = await _context.Accounts.FindAsync(id);
+            var account = await _context.Users.FindAsync(id);
             if (account == null)
             {
                 return NotFound();
@@ -96,9 +96,9 @@ namespace TimeShareProject.Controllers
     
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Password,Role")] Account account)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Username,Password,Role")] ApplicationUser account)
         {
-            if (id != account.Id)
+            if (id != account.Id.ToString())
             {
                 return NotFound();
             }
@@ -112,7 +112,7 @@ namespace TimeShareProject.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AccountExists(account.Id))
+                    if (!AccountExists(account.Id.ToString()))
                     {
                         return NotFound();
                     }
@@ -127,15 +127,15 @@ namespace TimeShareProject.Controllers
         }
 
    
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var account = await _context.Accounts
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var account = await _context.Users
+                .FirstOrDefaultAsync(m => m.Id.ToString() == id);
             if (account == null)
             {
                 return NotFound();
@@ -147,12 +147,12 @@ namespace TimeShareProject.Controllers
  
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var account = await _context.Accounts.FindAsync(id);
+            var account = await _context.Users.FindAsync(id);
             if (account != null)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.AccountId == id);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == id);
                 if (user != null)
                 {
                    
@@ -160,16 +160,16 @@ namespace TimeShareProject.Controllers
                     _context.Update(user);
                 }
 
-                _context.Accounts.Remove(account);
+                _context.Users.Remove(account);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AccountExists(int id)
+        private bool AccountExists(string id)
         {
-            return _context.Accounts.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.Id.ToString() == id);
         }
     }
 }

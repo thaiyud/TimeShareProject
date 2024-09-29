@@ -18,13 +18,13 @@ namespace TimeShareProject.Controllers
 
         }
 
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index(string? id)
         {
             if (id != null)
             {
-                return View(await _dbContext.Users.Include(u => u.Account).Where(u => u.Account.Role == 3 && u.Id == id).ToListAsync());
+                return View(await _dbContext.UserRoles.Where(u => u.RoleId.ToString() == "3" && u.UserId.ToString() == id).ToListAsync());
             }
-            return View(await _dbContext.Users.Include(u => u.Account).Where(u => u.Account.Role == 3).ToListAsync());
+            return View(await _dbContext.UserRoles.Where(u => u.RoleId.ToString() == "3").ToListAsync());
         }
 
         public IActionResult UserProfile()
@@ -33,7 +33,7 @@ namespace TimeShareProject.Controllers
             string username = User.Identity.Name;
 
             // Retrieve the user details from the database
-            var user = _dbContext.Users.FirstOrDefault(u => u.Account.Username == username);
+            var user = _dbContext.Users.FirstOrDefault(u => u.UserName == username);
 
             if (user == null)
             {
@@ -57,16 +57,16 @@ namespace TimeShareProject.Controllers
             {
                 return NotFound();
             }
-            ViewData["AccountId"] = new SelectList(_dbContext.Accounts, "Id", "Id", user.AccountId);
+            ViewData["AccountId"] = new SelectList(_dbContext.Users, "Id", "Id", user.Id.ToString());
             return View(user);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPersonalInfo(int id, [Bind("Id,Name,Sex,DateOfBirth,PhoneNumber,Email,Address")] User updatedUser)
+        public async Task<IActionResult> EditPersonalInfo(string id, [Bind("Id,Name,Sex,DateOfBirth,PhoneNumber,Email,Address")] ApplicationUser updatedUser)
         {
-            if (id != updatedUser.Id)
+            if (id != updatedUser.Id.ToString())
             {
                 return NotFound();
             }
@@ -83,7 +83,7 @@ namespace TimeShareProject.Controllers
                     }
 
                     // Update only the fields that are modified in the updatedUser
-                    existingUser.Name = updatedUser.Name;
+                    existingUser.FullName = updatedUser.FullName;
                     existingUser.Sex = updatedUser.Sex;
                     existingUser.DateOfBirth = updatedUser.DateOfBirth;
                     existingUser.PhoneNumber = updatedUser.PhoneNumber;
@@ -96,7 +96,7 @@ namespace TimeShareProject.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(updatedUser.Id))
+                    if (!UserExists(updatedUser.Id.ToString()))
                     {
                         return NotFound();
                     }
@@ -107,13 +107,9 @@ namespace TimeShareProject.Controllers
                 }
                 return RedirectToAction(nameof(UserProfile));
             }
-            ViewData["AccountId"] = new SelectList(_dbContext.Accounts, "Id", "Id", updatedUser.AccountId);
+            ViewData["AccountId"] = new SelectList(_dbContext.Users, "Id", "Id", updatedUser.Id);
             return View(updatedUser);
         }
-
-
-    
-
 
         public IActionResult EditAccount()
         {
@@ -129,7 +125,7 @@ namespace TimeShareProject.Controllers
                 return View(model);
             }
 
-            var account = await _dbContext.ApplicationUsers.FirstOrDefaultAsync(a => a.UserName == model.CurrentUsername && a.PasswordHash == model.CurrentPassword);
+            var account = await _dbContext.Users.FirstOrDefaultAsync(a => a.UserName == model.CurrentUsername && a.PasswordHash == model.CurrentPassword);
             if (account == null)
             {
                 TempData["errorCorrectUsername"] = "Invalid current username or password!";
@@ -156,7 +152,7 @@ namespace TimeShareProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditIdentityCard(User user, IFormFile IdfrontImage, IFormFile IdbackImage)
+        public async Task<IActionResult> EditIdentityCard(ApplicationUser user, IFormFile IdfrontImage, IFormFile IdbackImage)
         {
             if (user == null)
             {
